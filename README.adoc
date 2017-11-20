@@ -3,17 +3,10 @@
 #download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
 
 == TODO
-#firefox-esr
-#fonts-cantarell gnome-menus
-where is this file? gedit isofs/isolinux/txt.cfg
-try: desktop-base without recom @ install time
-
 late command: guest additions VBox open a GUI window and wait for confirmation!
 => solved that problem with parameter, but now it seems I can’t mount the vboxfs type.
 
 last try, full install lasted 11min.
-
-output in folder /root by default works, can simplify the late commands.
 
 === Console font
 Failed to start Set console font and keymap. See 'systemctl status console-setup.service' for details.
