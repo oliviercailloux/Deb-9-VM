@@ -1,6 +1,4 @@
 cd /root
-ls / /home /media /mnt > listall 2>> late_command-errors.txt
-ls / /home /media /mnt > listall-local 2>> late_command-errors-local.txt
 
 sed -i "s/^#  \(AutomaticLoginEnable = true\)$/\1/" /etc/gdm3/daemon.conf 1>> late_command-out.txt 2>> late_command-errors.txt
 sed -i "s/^#  \(AutomaticLogin = user1\)$/AutomaticLogin = user/" /etc/gdm3/daemon.conf 1>> late_command-out.txt 2>> late_command-errors.txt
