@@ -1,0 +1,147 @@
+= build-preseed
+
+#download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
+
+== TODO
+#firefox-esr
+#fonts-cantarell gnome-menus
+where is this file? gedit isofs/isolinux/txt.cfg
+try: desktop-base without recom @ install time
+
+late command: guest additions VBox open a GUI window and wait for confirmation!
+=> solved that problem with parameter, but now it seems I can’t mount the vboxfs type.
+
+last try, full install lasted 11min.
+
+output in folder /root by default works, can simplify the late commands.
+
+=== Console font
+Failed to start Set console font and keymap. See 'systemctl status console-setup.service' for details.
+sudo apt remove --purge console-setup
+sudo apt-get install console-setup
+sudo dpkg-reconfigure console-setup
+
+== VBox Guest Additions
+with minimal + bzip2, make, linux-headers-amd64 − recommended, VBGA install (from official iso: mkdir vbox ; sudo mount /dev/sr1 vbox ; sudo vbox/VBoxLinuxAdditions.run) but refuse to mount: sudo mount -t vboxsf Biblio vbox/ ⇒ Invalid argument. Same thing when installed using virtualbox-guest-dkms from unstable. Same thing after adding virtualbox-guest-x11 from unstable. Same thing under gnome. However, install from official iso does enable shared clipboard under gnome.
+
+https://packages.debian.org/search?keywords=virtualbox&suite=stretch-backports
+https://packages.debian.org/search?keywords=virtualbox
+
+Maybe important to install https://packages.debian.org/stretch/vde2 ?
+
+Could make it work either with vde2 or because not symlink;
+
+== Late command
+In preseed late_command, ls used is the BusyBox one (https://busybox.net/downloads/BusyBox.html), thus no ls -R allowed.
+
+Redirection using this does not work: `in-target /bin/bash /root/late_command.bash > /root/late_command-out.txt 2> /root/late_command-errors.txt`. Need to redirect each command individually, it seems.
+
+. Works
+** ls /cdrom /media /mnt > /target/listall 2>> /target/late_command-errors.txt
+** in-target touch /root/test
+** cd /target/etc/apt/; \
+** ls . > temp;
+. no apparent effect (and no error message):
+** in-target ls . > /root/test 
+** ls . > /root/listhome
+** ls / > /root/listslash
+** file /etc/apt/temp3 contains the files written in /root in memory; but these files disappear after reboot!
+** ls . > /root/listhome ; \
+** ls / > /root/listslash ; \
+** cd /target/etc/apt/; \
+** ls /root > temp3; \
+. works, but is empty:
+** ls /media > /target/listall
+. as expected (shows error):
+** ls /nonexistent > /target/listnone.txt 2> /target/listnone-err.txt
+. fails:
+** in-target ls /cdrom > /root/test fails
+** ls /target > /target/listtarget ; \ ls / > /target/listslash ; \ mount > /target/listmount ; \ ls -R /media > /target/listall
+** ls /target > /target/listtarget ; \ ls / > /target/listslash ; \ ls -R /media > /target/listall
+. fails, probably because /cdrom does not exist when in in-target:
+** in-target /bin/bash /cdrom/late_command.bash 
+. to test:
+** in-target /bin/sh /tmp/files/post.sh ; \
+. works:
+** cp -a /cdrom/late_command.bash /target ; \
+** in-target /bin/bash /late_command.bash
+
+== Shutdown
+https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1457400
+Seems like the console font and keymap things suffice to solve the shutdown issue.
+
+== isolinux timeout and text
+I change the timeout from 0 to 6 for the following reason. “If more than one label entry is available, this directive indicates how long to pause at the boot: prompt until booting automatically, in units of 1/10 s. The timeout is cancelled when any key is pressed, the assumption being the user will complete the command line. A timeout of zero will disable the timeout completely. The default is 0.”
+
+I change the text just to be able to visually differentiate the preseeded installer from an original one.
+
+== Keyboard
+must choose fr(latin9) when install: see /DEBIAN/templates in keyboard-configuration_1.123_all.deb (https://packages.debian.org/jessie/all/keyboard-configuration/download)
+#works, but obsolete. But there’s nothing else for French: https://sources.debian.net/src/console-setup/1.166/debian/keyboard-configuration.templates/ and https://codesearch.debian.net/search?q=path%3A%2Fdebian%2F*+keyboard-configuration%2Fxkb-keymap+package%3Aconsole-setup
+
+gnome ignores the keyboard file (changed it with dpkg-reconfigure keyboard-configuration, then rebooted, the file /etc/default/keyboard has belgian settings but gnome still shows english and french only).
+
+gsettings get org.gnome.desktop.input-sources sources
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'be+oss_sundeadkeys')]"
+#corresponds to system keyboard layouts shown under Login screen in Gnome dialog
+localectl
+#set-x11-keymap LAYOUT [MODEL [VARIANT [OPTIONS]]]
+#once done, creating a new user in gnome sets its layouts to en and be+oss_sundeadkeys, with default en.
+localectl set-x11-keymap be "" oss_sundeadkeys
+??
+set-keymap MAP
+/usr/share/X11/xkb/rules/base.lst 
+! layout. 
+
+== Packages
+This is with Jessie.
+
+* minimal: has unnecessary packages such as anacron, bluetooth, but not python
+* minimal, gdm3: missing terminal, nice font
+* minimal, gdm3 gnome-terminal: Does not start the GUI. (even when add desktop-base; but starts when adding xserver-xorg; but crashes)
+
+does not install suggestions (no gnome when gnome-core is asked)
+
+Stretch.
+standard + recommended: 884M (df -h), including /home. Has unnecessary packages such as anacron, bluetooth, python2.7, python3. (79 M saved if removed)
+minimal − recommended: 790M (df -h), or rather 739 M. Has unnecessary packages such as anacron, bluetooth, but not python.
+#apparently need dpkg-reconfigure keyboard-configuration after install. https://serverfault.com/questions/539911/setting-debconf-selections-for-keyboard-configuration-fails-layout-ends-up-as
+non-existent-string-for-minimal-install − recommended: 739 MB (df -h). Anacron, bluetooth, no man, no python.
+
+== Timing
+This is with `debian-9.0.0-amd64-netinst.iso` (Stretch). (Or https://en.wikipedia.org/wiki/Debian_version_history#Debian_8_.28Jessie.29[Jessie]?)
+
+* 0 start
+* 0m48 install base system
+* 1m40 config APT
+* 1m57 choose and install software
+* 3m d/l 891 suppl files (for gnome-core & recommended)
+* 3m40 install suppl files
+* 6m23 GRUB, end install
+
+== Size
+This is with Jessie.
+
+* minimal: 727M (df -h), excluding /home
+* minimal, gnome-core, recommended: 2.2 Go
+* minimal, gdm3 gnome-terminal, recommended: 1.9 Go
+* minimal, gdm3 gnome-terminal: 1.3 Go
+
+== Security
+User password weak is fine as long as no remote login is permitted.
+https://security.stackexchange.com/questions/66000/what-risks-am-i-taking-with-a-weak-password-on-a-laptop
+
+== Local notes
+ip received is in 10.2 from DHCP over NAT.
+
+== VirtualBox
+https://www.virtualbox.org/manual/UserManual.html
+
+packages bzip2, make, linux-headers-amd64 must be installed in order to run guest successfully
+once installed, mount works but not copy/paste (only after guest reboot)
+
+== References
+* https://www.debian.org/releases/stretch/example-preseed.txt
+* https://www.debian.org/releases/stable/amd64/apb.html[Automating the installation using preseeding] ( in the https://www.debian.org/releases/stable/amd64/index.html[Debian GNU/Linux Installation Guide]
+* https://sfxpt.wordpress.com/2013/06/09/get-the-debianubuntu-ready-and-customized-the-way-you-like-in-10-minutes/[Stuff] about Debug (otherwize outdated)
+
