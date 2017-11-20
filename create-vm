@@ -7,7 +7,9 @@ rm -R "/home/olivier/Local/deb9 vm"
 VBoxManage createvm --name ${VM_NAME} --ostype Debian_64 --register --basefolder "/home/olivier/Local/deb9 vm"
 VBoxManage sharedfolder add ${VM_NAME} --name Local --hostpath "/home/olivier/Local"
 VBoxManage modifyvm ${VM_NAME} --clipboard bidirectional
-VBoxManage modifyvm ${VM_NAME} --memory 1024 --vram 16 --pae off --rtcuseutc on --nic1 bridged --bridgeadapter1 eth0 --boot1 disk --boot2 dvd --boot3 none --usb on --mouse usbtablet --biosbootmenu disabled --bioslogofadein off --bioslogofadeout off --bioslogodisplaytime 1
+VBoxManage modifyvm ${VM_NAME} --memory 1024 --vram 16 --pae off --rtcuseutc on --boot1 disk --boot2 dvd --boot3 none --usb on --mouse usbtablet --biosbootmenu disabled --bioslogofadein off --bioslogofadeout off --bioslogodisplaytime 1
+#Only if required by host network environment
+#VBoxManage modifyvm ${VM_NAME} --nic1 bridged --bridgeadapter1 eth0
 VBoxManage storagectl ${VM_NAME} --name SATA --add sata
 VBoxManage createmedium disk --filename "/home/olivier/Local/deb9 vm/9adisk.vmdk" --size 9000 --format VMDK
 VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 0 --medium "/home/olivier/Local/deb9 vm/9adisk.vmdk" --type hdd
