@@ -22,9 +22,10 @@ sed -i 's/XKBLAYOUT="fr"/XKBLAYOUT="be"/' /etc/default/keyboard 1>> late_command
 
 wget http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/oxygen/1a/eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz 1>> late_command-out.txt 2>> late_command-errors.txt 
 tar -x -f eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz -C /usr/local/share/
+ln -s /usr/local/share/eclipse/eclipse /usr/local/bin
 eclipse -nosplash -application org.eclipse.equinox.p2.director -repository "http://download.eclipse.org/releases/oxygen/,http://download.oracle.com/otn_software/oepe/12.2.1.6/oxygen/repository" -installIU oracle.eclipse.tools.glassfish.feature.group 1>> late_command-out.txt 2>> late_command-errors.txt 
 xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
-xdg-desktop-menu install "/mnt/cdrom/eclipse.desktop"
+xdg-desktop-menu install "/media/cdrom/eclipse-oxygen.desktop"
 
 gsettings get org.gnome.desktop.screensaver lock-enabled
 gsettings set org.gnome.desktop.screensaver lock-enabled false
