@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Eclipse Oxygen
+Icon=eclipse-oxygen
+Exec=/usr/local/share/eclipse/eclipse %F
+Terminal=false
+Categories=Development;IDE;Java;
+

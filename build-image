@@ -5,5 +5,6 @@ mkdir isofs
 sed -i 's/timeout 0/timeout 6/' "isofs/isolinux/isolinux.cfg"
 sed -i 's/menu label ^Graphical install$/menu label ^Graphical install preseeded/' "isofs/isolinux/gtk.cfg"
 sed -i 's+append vga=788 initrd=/install.amd/gtk/initrd.gz --- quiet+append vga=788 initrd=/install.amd/gtk/initrd.gz auto=true preseed/file=/cdrom/preseed.cfg --- quiet+' "isofs/isolinux/gtk.cfg"
-genisoimage -input-charset utf-8 -o preseeded.iso -r -J -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/boot.cat isofs preseed.cfg late_command.bash
+genisoimage -input-charset utf-8 -o preseeded.iso -r -J -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/boot.cat isofs preseed.cfg late_command.bash eclipse.desktop
+
 
