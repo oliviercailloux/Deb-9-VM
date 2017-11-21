@@ -2,12 +2,20 @@
 
 #download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
 
+== TODO
+* no lock screen by default
+* eclipse perfs?
+
 == Late command
 In preseed late_command, ls used is the BusyBox one (https://busybox.net/downloads/BusyBox.html), thus no ls -R allowed.
 
 Redirection using this does not work: `in-target /bin/bash /root/late_command.bash > /root/late_command-out.txt 2> /root/late_command-errors.txt`. Need to redirect each command individually, it seems.
 
 1>&2 redirects channel 1 into channel 2, such that both is written as stderr. See https://www.gnu.org/software/bash/manual/bashref.html#Redirections[Redirections].
+
+/usr/local/bin is probably not in the path.
+
+gsettings set then get: seems to work. But is not applied to the user user.
 
 . Works
 ** ls /cdrom /media /mnt > /target/listall 2>> /target/late_command-errors.txt
