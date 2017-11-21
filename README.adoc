@@ -2,32 +2,12 @@
 
 #download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
 
-== TODO
-late command: guest additions VBox open a GUI window and wait for confirmation!
-=> solved that problem with parameter, but now it seems I can’t mount the vboxfs type.
-
-last try, full install lasted 11min.
-
-=== Console font
-Failed to start Set console font and keymap. See 'systemctl status console-setup.service' for details.
-sudo apt remove --purge console-setup
-sudo apt-get install console-setup
-sudo dpkg-reconfigure console-setup
-
-== VBox Guest Additions
-with minimal + bzip2, make, linux-headers-amd64 − recommended, VBGA install (from official iso: mkdir vbox ; sudo mount /dev/sr1 vbox ; sudo vbox/VBoxLinuxAdditions.run) but refuse to mount: sudo mount -t vboxsf Biblio vbox/ ⇒ Invalid argument. Same thing when installed using virtualbox-guest-dkms from unstable. Same thing after adding virtualbox-guest-x11 from unstable. Same thing under gnome. However, install from official iso does enable shared clipboard under gnome.
-
-https://packages.debian.org/search?keywords=virtualbox&suite=stretch-backports
-https://packages.debian.org/search?keywords=virtualbox
-
-Maybe important to install https://packages.debian.org/stretch/vde2 ?
-
-Could make it work either with vde2 or because not symlink;
-
 == Late command
 In preseed late_command, ls used is the BusyBox one (https://busybox.net/downloads/BusyBox.html), thus no ls -R allowed.
 
 Redirection using this does not work: `in-target /bin/bash /root/late_command.bash > /root/late_command-out.txt 2> /root/late_command-errors.txt`. Need to redirect each command individually, it seems.
+
+1>&2 redirects channel 1 into channel 2, such that both is written as stderr. See https://www.gnu.org/software/bash/manual/bashref.html#Redirections[Redirections].
 
 . Works
 ** ls /cdrom /media /mnt > /target/listall 2>> /target/late_command-errors.txt
@@ -59,10 +39,6 @@ Redirection using this does not work: `in-target /bin/bash /root/late_command.ba
 ** cp -a /cdrom/late_command.bash /target ; \
 ** in-target /bin/bash /late_command.bash
 
-== Shutdown
-https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1457400
-Seems like the console font and keymap things suffice to solve the shutdown issue.
-
 == isolinux timeout and text
 I change the timeout from 0 to 6 for the following reason. “If more than one label entry is available, this directive indicates how long to pause at the boot: prompt until booting automatically, in units of 1/10 s. The timeout is cancelled when any key is pressed, the assumption being the user will complete the command line. A timeout of zero will disable the timeout completely. The default is 0.”
 
@@ -74,17 +50,12 @@ must choose fr(latin9) when install: see /DEBIAN/templates in keyboard-configura
 
 gnome ignores the keyboard file (changed it with dpkg-reconfigure keyboard-configuration, then rebooted, the file /etc/default/keyboard has belgian settings but gnome still shows english and french only).
 
+#corresponds to system keyboard layouts shown under Login screen in Gnome dialog, current user
 gsettings get org.gnome.desktop.input-sources sources
-gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'be+oss_sundeadkeys')]"
-#corresponds to system keyboard layouts shown under Login screen in Gnome dialog
-localectl
-#set-x11-keymap LAYOUT [MODEL [VARIANT [OPTIONS]]]
-#once done, creating a new user in gnome sets its layouts to en and be+oss_sundeadkeys, with default en.
-localectl set-x11-keymap be "" oss_sundeadkeys
-??
-set-keymap MAP
-/usr/share/X11/xkb/rules/base.lst 
-! layout. 
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'fr+oss_sundeadkeys')]"
+#sets default for new users
+localectl set-x11-keymap fr "" oss_sundeadkeys
+# but requires systemd running, which seems to be not the case with late-command (“Failed to create bus connection”)
 
 == Packages
 This is with Jessie.
@@ -133,8 +104,31 @@ https://www.virtualbox.org/manual/UserManual.html
 packages bzip2, make, linux-headers-amd64 must be installed in order to run guest successfully
 once installed, mount works but not copy/paste (only after guest reboot)
 
+Important to use the --nox11 parameter, otherwise it opens a terminal during run of late_command and waits for user confirmation.
+
+https://packages.debian.org/search?keywords=virtualbox&suite=stretch-backports
+https://packages.debian.org/search?keywords=virtualbox
+
+Do not use a symlink.
+
+== Eclipse
+http://help.eclipse.org/oxygen/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/p2_director.html
+
+sudo eclipse -nosplash -application org.eclipse.equinox.p2.director -repository "http://download.eclipse.org/releases/oxygen/,http://download.oracle.com/otn_software/oepe/12.2.1.6/oxygen/repository" -installIU oracle.eclipse.tools.glassfish.feature.group
+=> works, but takes 6 min (installs in /usr/local/share/eclipse/plugins/oracle.eclipse…)
+
+sudo xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
+sudo xdg-desktop-menu install "/home/olivier/Docu/Logiciels/Gnome/eclipse-emars.desktop"
+
+* https://stackoverflow.com/questions/15262572/how-to-install-list-of-eclipse-plugins-from-a-script
+** Says: `eclipse -nosplash -application org.eclipse.equinox.p2.director -repository http://download.eclipse.org/releases/indigo/,http://cmakeed.sourceforge.net/eclipse/ -installIU com.cthing.cmakeed.feature.feature.group`
+** https://stackoverflow.com/questions/7163970/how-do-you-automate-the-installation-of-eclipse-plugins-with-command-line[Similar] (more details?)
+** References:
+** http://wiki.eclipse.org/Equinox_p2_director_application/Examples/Install_into_eclipse_using_SDKProfile[more links]
+** https://wiki.eclipse.org/Equinox/p2/Getting_Started[wiki]
+
 == References
 * https://www.debian.org/releases/stretch/example-preseed.txt
-* https://www.debian.org/releases/stable/amd64/apb.html[Automating the installation using preseeding] ( in the https://www.debian.org/releases/stable/amd64/index.html[Debian GNU/Linux Installation Guide]
+* https://www.debian.org/releases/stable/amd64/apb.html[Automating the installation using preseeding] (in the https://www.debian.org/releases/stable/amd64/index.html[Debian GNU/Linux Installation Guide])
 * https://sfxpt.wordpress.com/2013/06/09/get-the-debianubuntu-ready-and-customized-the-way-you-like-in-10-minutes/[Stuff] about Debug (otherwize outdated)
 
