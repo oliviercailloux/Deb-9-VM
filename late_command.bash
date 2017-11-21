@@ -26,3 +26,7 @@ eclipse -nosplash -application org.eclipse.equinox.p2.director -repository "http
 xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
 xdg-desktop-menu install "/mnt/cdrom/eclipse.desktop"
 
+gsettings get org.gnome.desktop.screensaver lock-enabled
+gsettings set org.gnome.desktop.screensaver lock-enabled false
+gsettings get org.gnome.desktop.screensaver lock-enabled
+
