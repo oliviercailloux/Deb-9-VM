@@ -118,6 +118,8 @@ https://packages.debian.org/search?keywords=virtualbox
 
 Do not use a symlink.
 
+Give more than 1024 MB of memory, otherwise when eclipse runs while starting GlassFish or Firefox (for example), a process gets killed because of out of memory.
+
 == Eclipse
 http://help.eclipse.org/oxygen/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/p2_director.html
 
