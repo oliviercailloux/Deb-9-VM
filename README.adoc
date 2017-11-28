@@ -110,7 +110,6 @@ ip received is in 10.2 from DHCP over NAT.
 https://www.virtualbox.org/manual/UserManual.html
 
 packages bzip2, make, linux-headers-amd64 must be installed in order to run guest successfully
-once installed, mount works but not copy/paste (only after guest reboot)
 
 Important to use the --nox11 parameter, otherwise it opens a terminal during run of late_command and waits for user confirmation.
 
@@ -125,8 +124,7 @@ http://help.eclipse.org/oxygen/index.jsp?topic=/org.eclipse.platform.doc.isv/gui
 sudo eclipse -nosplash -application org.eclipse.equinox.p2.director -repository "http://download.eclipse.org/releases/oxygen/,http://download.oracle.com/otn_software/oepe/12.2.1.6/oxygen/repository" -installIU oracle.eclipse.tools.glassfish.feature.group
 => works, but takes 6 min (installs in /usr/local/share/eclipse/plugins/oracle.eclipse…)
 
-sudo xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
-sudo xdg-desktop-menu install "/home/olivier/Docu/Logiciels/Gnome/eclipse-emars.desktop"
+Check https://github.com/seeq12/eclipse-import-projects-plugin ?
 
 * https://stackoverflow.com/questions/15262572/how-to-install-list-of-eclipse-plugins-from-a-script
 ** Says: `eclipse -nosplash -application org.eclipse.equinox.p2.director -repository http://download.eclipse.org/releases/indigo/,http://cmakeed.sourceforge.net/eclipse/ -installIU com.cthing.cmakeed.feature.feature.group`
