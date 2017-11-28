@@ -22,6 +22,8 @@ sed -i 's/XKBLAYOUT="fr"/XKBLAYOUT="be"/' /etc/default/keyboard
 
 wget http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/oxygen/1a/eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz
 tar -x -f eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz -C /usr/local/share/
+chgrp -R staff /usr/local/share/eclipse
+chmod -R g+w /usr/local/share/eclipse
 ln -s /usr/local/share/eclipse/eclipse /usr/local/bin
 /usr/local/share/eclipse/eclipse -nosplash -application org.eclipse.equinox.p2.director -repository "http://download.eclipse.org/releases/oxygen/,http://download.oracle.com/otn_software/oepe/12.2.1.6/oxygen/repository" -installIU oracle.eclipse.tools.glassfish.feature.group
 xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
@@ -29,6 +31,8 @@ xdg-desktop-menu install "/media/cdrom/eclipse-oxygen.desktop"
 
 wget http://download.java.net/glassfish/4.1.2/release/glassfish-4.1.2.zip
 unzip glassfish-4.1.2.zip -d /usr/local/share/
+chown -R user:staff /usr/local/share/glassfish4
+chmod -R g+w /usr/local/share/glassfish4
 echo 'java -jar "/usr/local/share/glassfish4/glassfish/lib/client/appserver-cli.jar" "$@"' > /usr/local/bin/asadmin
 chmod a+x /usr/local/bin/asadmin
 
@@ -36,5 +40,5 @@ gsettings get org.gnome.desktop.screensaver lock-enabled
 gsettings set org.gnome.desktop.screensaver lock-enabled false
 gsettings get org.gnome.desktop.screensaver lock-enabled
 cat /usr/share/glib-2.0/schemas/org.gnome.desktop.screensaver.gschema.xml
-su user -C gsettings get org.gnome.desktop.screensaver lock-enabled
+su user -c "gsettings get org.gnome.desktop.screensaver lock-enabled"
 
