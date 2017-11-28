@@ -28,6 +28,8 @@ ln -s /usr/local/share/eclipse/eclipse /usr/local/bin
 /usr/local/share/eclipse/eclipse -nosplash -application org.eclipse.equinox.p2.director -repository "http://download.eclipse.org/releases/oxygen/,http://download.oracle.com/otn_software/oepe/12.2.1.6/oxygen/repository" -installIU oracle.eclipse.tools.glassfish.feature.group
 xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
 xdg-desktop-menu install "/media/cdrom/eclipse-oxygen.desktop"
+mkdir -p /home/user/.eclipse/org.eclipse.platform_4.7.1_1591644777_linux_gtk_x86_64/configuration/.settings/
+echo "SHOW_WORKSPACE_SELECTION_DIALOG=false" > /home/user/.eclipse/org.eclipse.platform_4.7.1_1591644777_linux_gtk_x86_64/configuration/.settings/org.eclipse.ui.ide.prefs
 
 wget http://download.java.net/glassfish/4.1.2/release/glassfish-4.1.2.zip
 unzip glassfish-4.1.2.zip -d /usr/local/share/
@@ -35,6 +37,10 @@ chown -R user:staff /usr/local/share/glassfish4
 chmod -R g+w /usr/local/share/glassfish4
 echo 'java -jar "/usr/local/share/glassfish4/glassfish/lib/client/appserver-cli.jar" "$@"' > /usr/local/bin/asadmin
 chmod a+x /usr/local/bin/asadmin
+
+cat /home/user/.config/user-dirs.dirs
+su user -c 'xdg-user-dirs-update --set DESKTOP "$HOME"'
+cat /home/user/.config/user-dirs.dirs
 
 gsettings get org.gnome.desktop.screensaver lock-enabled
 gsettings set org.gnome.desktop.screensaver lock-enabled false
