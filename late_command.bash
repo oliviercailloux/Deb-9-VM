@@ -27,7 +27,14 @@ ln -s /usr/local/share/eclipse/eclipse /usr/local/bin
 xdg-icon-resource install --size 256 /usr/local/share/eclipse/icon.xpm eclipse-oxygen
 xdg-desktop-menu install "/media/cdrom/eclipse-oxygen.desktop"
 
+wget http://download.java.net/glassfish/4.1.2/release/glassfish-4.1.2.zip
+unzip glassfish-4.1.2.zip -d /usr/local/share/
+echo 'java -jar "/usr/local/share/glassfish4/glassfish/lib/client/appserver-cli.jar" "$@"' > /usr/local/bin/asadmin
+chmod a+x /usr/local/bin/asadmin
+
 gsettings get org.gnome.desktop.screensaver lock-enabled
 gsettings set org.gnome.desktop.screensaver lock-enabled false
 gsettings get org.gnome.desktop.screensaver lock-enabled
+cat /usr/share/glib-2.0/schemas/org.gnome.desktop.screensaver.gschema.xml
+su user -C gsettings get org.gnome.desktop.screensaver lock-enabled
 
