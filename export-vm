@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+VBoxManage sharedfolder remove ${VM_NAME} --name Temp
+VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 1 --medium emptydrive --type dvddrive
+VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 2 --medium none
+VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 3 --medium none
+VBoxManage export ${VM_NAME} --output ~/${VM_NAME}.ova --ovf20 --options nomacs
+
