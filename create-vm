@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-VM_NAME=`date -Iseconds`
-echo ${VM_NAME}
-rm -R "/home/olivier/Local/deb9 vm"
+VM_DIR="/home/olivier/Local/Données/deb9 vm"
+rm -R "${VM_DIR}"
 #VBoxManage unregistervm 9a
-VBoxManage createvm --name ${VM_NAME} --ostype Debian_64 --register --basefolder "/home/olivier/Local/deb9 vm"
-VBoxManage sharedfolder add ${VM_NAME} --name Local --hostpath "/home/olivier/Local"
+VBoxManage createvm --name ${VM_NAME} --ostype Debian_64 --register --basefolder "${VM_DIR}"
+VBoxManage sharedfolder add ${VM_NAME} --name Temp --hostpath "/home/olivier/Temp"
 VBoxManage modifyvm ${VM_NAME} --clipboard bidirectional
 VBoxManage modifyvm ${VM_NAME} --memory 2048 --vram 16 --pae off --rtcuseutc on --boot1 disk --boot2 dvd --boot3 none --usb on --mouse usbtablet --biosbootmenu disabled --bioslogofadein off --bioslogofadeout off --bioslogodisplaytime 1
 #Only if required by host network environment
 #VBoxManage modifyvm ${VM_NAME} --nic1 bridged --bridgeadapter1 eth0
-VBoxManage storagectl ${VM_NAME} --name SATA --add sata
-VBoxManage createmedium disk --filename "/home/olivier/Local/deb9 vm/9adisk.vmdk" --size 9000 --format VMDK
-VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 0 --medium "/home/olivier/Local/deb9 vm/9adisk.vmdk" --type hdd
-VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 1 --medium "/home/olivier/Local/deb9/preseeded.iso" --type dvddrive
+VBoxManage storagectl ${VM_NAME} --name SATA --add sata --portcount 4
+VBoxManage createmedium disk --filename "${VM_DIR}/9adisk.vmdk" --size 9000 --format VMDK
+VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 0 --medium "${VM_DIR}/9adisk.vmdk" --type hdd
+VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 1 --medium "preseeded.iso" --type dvddrive
 VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 2 --medium "/usr/share/virtualbox/VBoxGuestAdditions.iso" --type dvddrive
+VBoxManage storageattach ${VM_NAME} --storagectl SATA --port 3 --medium "/home/olivier/Local/Données/debian-live-9.2.0-amd64-gnome.iso" --type dvddrive
 VBoxManage startvm ${VM_NAME}
 

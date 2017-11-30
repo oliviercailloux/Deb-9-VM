@@ -1,10 +1,21 @@
 = build-preseed
 
-#download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
+. download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
+. Change folders in the bash files below according to your local system
+. Run: `rm -R isofs/ ; ./build-image ; export VM_NAME=+`+date -Iseconds+`+ ; ./create-vm`
+. Reduce image (see below)
+. Run `export-vm`
 
-== TODO
-* no lock screen by default
-* eclipse perfs?
+== Before export
+* change be to fr
+* (empty trash and maven cache)
+* remove eclipse pref
+
+#to test
+#gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults/ -t string -s /apps/nautilus/list_view/default_zoom_level smallest
+#gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults/ -t boolean -s /apps/gnome-power-manager/lock_on_blank_screen false
+#gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults/ -t boolean -s /apps/gnome-power-manager/lock_use_screensaver_settings false
+#gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults/ -t boolean -s /apps/gnome-screensaver/idle_activation_enabled false
 
 == Late command
 In preseed late_command, ls used is the BusyBox one (https://busybox.net/downloads/BusyBox.html), thus no ls -R allowed.
@@ -106,6 +117,9 @@ https://security.stackexchange.com/questions/66000/what-risks-am-i-taking-with-a
 == Local notes
 ip received is in 10.2 from DHCP over NAT.
 
+== Gnome
+Change default for new users: see dconf or gsettings.
+
 == VirtualBox
 https://www.virtualbox.org/manual/UserManual.html
 
@@ -118,7 +132,7 @@ https://packages.debian.org/search?keywords=virtualbox
 
 Do not use a symlink.
 
-Give more than 1024 MB of memory, otherwise when eclipse runs while starting GlassFish or Firefox (for example), a process gets killed because of out of memory.
+Give more than 1024 MB of memory, otherwise running Eclipse while starting GlassFish or Firefox is enough to trigger an out of memory, and a process gets killed.
 
 == Eclipse
 http://help.eclipse.org/oxygen/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/p2_director.html
@@ -134,6 +148,50 @@ Check https://github.com/seeq12/eclipse-import-projects-plugin ?
 ** References:
 ** http://wiki.eclipse.org/Equinox_p2_director_application/Examples/Install_into_eclipse_using_SDKProfile[more links]
 ** https://wiki.eclipse.org/Equinox/p2/Getting_Started[wiki]
+
+== Shut down
+The installer activates screen saver after 10 minutes and stops intall. Need to be active (e.g. move the mouse) to make it continue. See bug https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=787279[787279]. Tried the suggested workaround, as follows.
+mkdir arch
+archivemount -o nobackup isofs/install.amd/gtk/initrd.gz arch
+echo 'DPMS="-s 0"' > arch/lib/debian-installer.d/S61Xnoblank
+sleep 3
+fusermount -u arch
+rmdir arch
+rm isofs/install.amd/gtk/initrd.gz.orig
+
+But then the installer refuses to start.
+
+== Reduce
+Could probably reduce by far the size of the resulting image.
+
+* Remove folder .eclipse (will be re-created anyway at first start)
+* Remove evolution and other non essential applications
+* Remove .cache (partly created by tracker?)
+* Remove apt cache (see /var/lib/apt)
+* Remove linux-headers (probably non used after installed VBox Guest)
+* Install minimal image and install programs (Eclipse, Glassfish, LibreOffice, …) only at first boot of the image.
+
+Or simply provide the installer (and vbox) iso files.
+
+== Export
+Linux reported disk size: 9,4 Go, sda1 7,3 Go, sda5 (swap) 2,1 Go.
+Df says: sda1 7,2 Go, 5,2 Go used, 2 Go free (1,6 Go + 5% reserved).
+vmdk file size: 6,9 Go
+Exported size: 3,7 Go
+
+booted with live image
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'be+oss_sundeadkeys')]"
+sudo apt-get update
+sudo apt-get install zerofree
+zerofree -v /dev/sda1
+sudo dd if=/dev/zero of=/dev/sda5
+(initially, forgotten)
+mkswap
+ls -l /dev/disk/by-uuid/
+sudo gedit /etc/initramfs-tools/conf.d/resume 
+sudo update-initramfs -u
+
+Then, exported size: 2,3 Go (without swap)
 
 == References
 * https://www.debian.org/releases/stretch/example-preseed.txt
