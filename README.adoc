@@ -1,5 +1,9 @@
-= build-preseed
+= Deb-9-VM
+Use those scripts to create a VM file containing a Debian system. Tested for Debian 9.2.
 
+This README file is a draft, must still be formatted correctly. Write to me if you are interested in its content, that will motivate me.
+
+== build-preseed
 . download debian-9.2.1-amd64-netinst.iso from https://www.debian.org/CD/netinst/
 . Change folders in the bash files below according to your local system
 . Run: `rm -R isofs/ ; ./build-image ; export VM_NAME=+`+date -Iseconds+`+ ; ./create-vm`
@@ -183,12 +187,16 @@ booted with live image
 gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'be+oss_sundeadkeys')]"
 sudo apt-get update
 sudo apt-get install zerofree
-zerofree -v /dev/sda1
-sudo dd if=/dev/zero of=/dev/sda5
+sudo zerofree -v /dev/sda1
+sudo dd if=/dev/zero of=/dev/sda5 (30 sec)
 (initially, forgotten)
-mkswap
+sudo mkswap /dev/sda5
 ls -l /dev/disk/by-uuid/
-sudo gedit /etc/initramfs-tools/conf.d/resume 
+sudo mount /dev/sda1 /mnt
+cat /mnt/etc/initramfs-tools/conf.d/resume 
+sudo gedit /mnt/etc/initramfs-tools/conf.d/resume 
+
+reboot, then:
 sudo update-initramfs -u
 
 Then, exported size: 2,3 Go (without swap)
