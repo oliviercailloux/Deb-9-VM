@@ -3,6 +3,8 @@
 exec > >(tee -ia /root/late_command-out.txt)
 exec 2> >(tee -ia /root/late_command-errors.txt >&2)
 
+cat /etc/debian_version
+
 cd /root
 
 ls -l /home /media /media/cdrom /media/cdrom0 /media/cdrom1 /media/cdrom2 /mnt
@@ -19,9 +21,9 @@ update-grub
 sed -i 's/XKBVARIANT="latin9"/XKBVARIANT="oss_sundeadkeys"/' /etc/default/keyboard
 #sed -i 's/XKBLAYOUT="fr"/XKBLAYOUT="be"/' /etc/default/keyboard
 
-wget --progress=dot:mega http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/oxygen/1a/eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz
-tar -x -f eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz -C /usr/local/share/
-rm eclipse-jee-oxygen-1a-linux-gtk-x86_64.tar.gz
+wget --progress=dot:mega http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/oxygen/2/eclipse-jee-oxygen-2-linux-gtk-x86_64.tar.gz
+tar -x -f eclipse-jee-oxygen-2-linux-gtk-x86_64.tar.gz -C /usr/local/share/
+rm eclipse-jee-oxygen-2-linux-gtk-x86_64.tar.gz
 chgrp -R staff /usr/local/share/eclipse
 chmod -R g+w /usr/local/share/eclipse
 ln -s /usr/local/share/eclipse/eclipse /usr/local/bin
@@ -42,6 +44,7 @@ su user -c '/usr/local/bin/asadmin start-domain'
 su user -c '/usr/local/bin/asadmin set server-config.network-config.network-listeners.network-listener.admin-listener.address=localhost'
 su user -c '/usr/local/bin/asadmin set server-config.network-config.network-listeners.network-listener.http-listener-1.address=localhost'
 su user -c '/usr/local/bin/asadmin set server-config.network-config.network-listeners.network-listener.http-listener-2.enabled=false'
+su user -c '/usr/local/bin/asadmin create-jvm-options -ea'
 
 su user -c 'xdg-user-dirs-update --set DESKTOP "$HOME"'
 su user -c 'xdg-user-dirs-update --set TEMPLATES "$HOME"'
@@ -55,6 +58,8 @@ su user -c "gsettings set org.gnome.nautilus.preferences default-folder-viewer l
 
 su user -c "gsettings set org.gnome.desktop.screensaver lock-enabled false"
 su user -c "gsettings set org.gnome.desktop.session idle-delay 0"
+
+su user -c "gsettings set org.gnome.desktop.interface clock-show-date true"
 
 #su user -c "cd ; git clone https://github.com/oliviercailloux/samples.git"
 #su user -c "cd ; wget https://raw.githubusercontent.com/oliviercailloux/java-course/master/Best%20practices/Eclipse-prefs.epf"
